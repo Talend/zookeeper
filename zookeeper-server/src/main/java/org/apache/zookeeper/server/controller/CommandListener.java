@@ -18,14 +18,18 @@
 
 package org.apache.zookeeper.server.controller;
 
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.nio.charset.StandardCharsets;
+
 import org.apache.zookeeper.server.ExitCode;
 import org.apache.zookeeper.util.ServiceUtils;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +52,7 @@ public class CommandListener {
 
             server = new Server(port);
             LOG.info("CommandListener server host: {} with port: {}", host, port);
-            server.setHandler(new CommandHandler());
+            server.setDefaultHandler(new CommandHandler());
             server.start();
         } catch (Exception ex) {
             LOG.error("Failed to instantiate CommandListener.", ex);
@@ -67,30 +71,30 @@ public class CommandListener {
         }
     }
 
-    private class CommandHandler extends AbstractHandler {
+    private class CommandHandler extends Handler.Abstract {
+
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-                throws IOException {
+        public boolean handle(Request request, Response response, Callback callback) throws Exception {
             // Extract command string from request path. Remove leading '/'.
-            String commandStr = request.getPathInfo().substring(1);
+            String commandStr = Request.getPathInContext(request).substring(1);
             int responseCode;
-            response.setContentType("text/html;charset=utf-8");
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/html;charset=utf-8");
 
             try {
                 ControlCommand command = ControlCommand.parseUri(commandStr);
                 controller.processCommand(command);
-                baseRequest.setHandled(true);
                 responseCode = HttpServletResponse.SC_OK;
             } catch (IllegalArgumentException ex) {
                 LOG.error("Bad argument or command", ex);
                 responseCode = HttpServletResponse.SC_BAD_REQUEST;
             } catch (Exception ex) {
                 LOG.error("Failed processing the request", ex);
+                callback.failed(ex);
                 throw ex;
             }
-            response.setStatus(responseCode);
-            response.getWriter().println(commandStr);
             LOG.info("CommandListener processed command {} with response code {}", commandStr, responseCode);
+            response.write(true, StandardCharsets.UTF_8.encode(commandStr), callback);
+            return true;
         }
     }
 }

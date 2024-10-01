@@ -91,7 +91,7 @@ public class UnifiedConnectionFactory extends AbstractConnectionFactory {
             sslConnection = this.newSslConnection(connector, aheadEndpoint, engine);
             sslConnection.setRenegotiationAllowed(this.sslContextFactory.isRenegotiationAllowed());
             this.configure(sslConnection, connector, aheadEndpoint);
-            plainEndpoint = sslConnection.getDecryptedEndPoint();
+            plainEndpoint = sslConnection.getEndPoint();
         } else {
             sslConnection = null;
             plainEndpoint = aheadEndpoint;
@@ -109,7 +109,7 @@ public class UnifiedConnectionFactory extends AbstractConnectionFactory {
         final Connector connector,
         final EndPoint endPoint,
         final SSLEngine engine) {
-        return new SslConnection(connector.getByteBufferPool(), connector.getExecutor(), endPoint, engine);
+        return new SslConnection(connector.getByteBufferPool(), connector.getExecutor(), sslContextFactory, endPoint, engine);
     }
 
     @Override

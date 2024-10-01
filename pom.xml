@@ -330,7 +330,7 @@
                                     <!-- defined in Apache Parent Pom -->
                                     <descriptorRef>${sourceReleaseAssemblyDescriptor}</descriptorRef>
                                 </descriptorRefs>
-                                <finalName>apache-zookeeper-${project.version}</finalName>
+                                <finalName>apache-zookeeper-${upstream.version}</finalName>
                                 <appendAssemblyId>false</appendAssemblyId>
                                 <formats>
                                     <format>tar.gz</format>
@@ -539,6 +539,10 @@
   </profiles>
 
   <properties>
+    <upstream.version>3.9.2</upstream.version>
+    <zookeeper-server.tesb.version>3.9.2.jetty12.1</zookeeper-server.tesb.version>
+    <jetty.tesb.version>12.0.15</jetty.tesb.version>
+
     <!-- maven properties -->
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
@@ -713,17 +717,17 @@
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-server</artifactId>
-        <version>${jetty.version}</version>
+        <version>${jetty.tesb.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlet</artifactId>
-        <version>${jetty.version}</version>
+        <groupId>org.eclipse.jetty.ee10</groupId>
+        <artifactId>jetty-ee10-servlet</artifactId>
+        <version>${jetty.tesb.version}</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-client</artifactId>
-        <version>${jetty.version}</version>
+        <version>${jetty.tesb.version}</version>
       </dependency>
       <dependency>
         <groupId>io.dropwizard.metrics</groupId>
@@ -1134,7 +1138,7 @@
               </goals>
               <configuration>
                  <pushChanges>false</pushChanges>
-                 <message>Prepared ${project.version}</message>
+                 <message>Prepared ${upstream.version}</message>
               </configuration>
             </execution>
         </executions>

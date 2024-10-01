@@ -42,7 +42,7 @@
            https://issues.apache.org/jira/browse/ZOOKEEPER-3376
       -->
       <artifactId>zookeeper</artifactId>
-      <version>${project.version}</version>
+      <version>${upstream.version}</version>
     </dependency>    
     <dependency>
       <groupId>io.prometheus</groupId>
