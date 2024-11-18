@@ -1572,6 +1572,17 @@ and [SASL authentication for ZooKeeper](https://cwiki.apache.org/confluence/disp
         - 1. Regenerate `superDigest` when migrating to new algorithm.
         - 2. `SetAcl` for a znode which already had a digest auth of old algorithm.
 
+* *IPAuthenticationProvider.usexforwardedfor* :
+    (Java system property: **zookeeper.IPAuthenticationProvider.usexforwardedfor**)
+    **New in 3.9.3:**
+    IPAuthenticationProvider uses the client IP address to authenticate the user. By 
+    default it reads the **Host** HTTP header to detect client IP address. In some 
+    proxy configurations the proxy server adds the **X-Forwarded-For** header to
+    the request in order to provide the IP address of the original client request. 
+    By enabling **usexforwardedfor** ZooKeeper setting, **X-Forwarded-For** will be preferred
+    over the standard **Host** header.
+    Default value is **false**.
+
 * *X509AuthenticationProvider.superUser* :
     (Java system property: **zookeeper.X509AuthenticationProvider.superUser**)
     The SSL-backed way to enable a ZooKeeper ensemble
