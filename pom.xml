@@ -288,6 +288,9 @@
   <profiles>
     <profile>
       <id>full-build</id>
+      <activation>
+      <activeByDefault>true</activeByDefault>
+      </activation>
       <modules>
         <module>zookeeper-contrib</module>
         <!-- zookeeper-it needed by fatjar contrib -->
