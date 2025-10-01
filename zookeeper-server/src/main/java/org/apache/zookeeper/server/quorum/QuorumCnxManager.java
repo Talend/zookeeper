@@ -490,7 +490,7 @@ public class QuorumCnxManager {
 
             String addr = addressesToSend.stream()
                     .map(NetUtils::formatInetAddr).collect(Collectors.joining("|"));
-            byte[] addr_bytes = addr.getBytes();
+            byte[] addr_bytes = addr.getBytes(UTF_8);
             dout.writeInt(addr_bytes.length);
             dout.write(addr_bytes);
             dout.flush();
@@ -503,7 +503,7 @@ public class QuorumCnxManager {
         }
 
         // authenticate learner
-        QuorumPeer.QuorumServer qps = self.getVotingView().get(sid);
+        QuorumPeer.QuorumServer qps = self.getView().get(sid);
         if (qps != null) {
             // TODO - investigate why reconfig makes qps null.
             authLearner.authenticate(sock, qps.hostname);
