@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,8 +46,8 @@ import org.apache.zookeeper.cli.CommandFactory;
 import org.apache.zookeeper.cli.CommandNotFoundException;
 import org.apache.zookeeper.cli.MalformedCommandException;
 import org.apache.zookeeper.client.ZKClientConfig;
+import org.apache.zookeeper.common.ConfigException;
 import org.apache.zookeeper.server.ExitCode;
-import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.util.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,8 +267,8 @@ public class ZooKeeperMain {
 
         if (cl.getOption("client-configuration") != null) {
             try {
-                clientConfig = new ZKClientConfig(cl.getOption("client-configuration"));
-            } catch (QuorumPeerConfig.ConfigException e) {
+                clientConfig = new ZKClientConfig(Paths.get(cl.getOption("client-configuration")));
+            } catch (ConfigException e) {
                 e.printStackTrace();
                 ServiceUtils.requestSystemExit(ExitCode.INVALID_INVOCATION.getValue());
             }
@@ -310,20 +311,18 @@ public class ZooKeeperMain {
             boolean jlinemissing = false;
             // only use jline if it's in the classpath
             try {
-                Class<?> consoleC = Class.forName("jline.console.ConsoleReader");
-                Class<?> completorC = Class.forName("org.apache.zookeeper.JLineZNodeCompleter");
+                Class<?> readerC = Class.forName("org.jline.reader.LineReader");
+                Class<?> completerC = Class.forName("org.apache.zookeeper.JLineZNodeCompleter");
 
                 System.out.println("JLine support is enabled");
 
-                Object console = consoleC.getConstructor().newInstance();
-
-                Object completor = completorC.getConstructor(ZooKeeper.class).newInstance(zk);
-                Method addCompletor = consoleC.getMethod("addCompleter", Class.forName("jline.console.completer.Completer"));
-                addCompletor.invoke(console, completor);
+                Object completer = completerC.getConstructor(ZooKeeper.class).newInstance(zk);
+                Object terminal = createTerminal();
+                Object reader = createLineReader(terminal, completer);
 
                 String line;
-                Method readLine = consoleC.getMethod("readLine", String.class);
-                while ((line = (String) readLine.invoke(console, getPrompt())) != null) {
+                Method readLine = readerC.getMethod("readLine", String.class);
+                while ((line = (String) readLine.invoke(reader, getPrompt())) != null) {
                     executeLine(line);
                 }
             } catch (ClassNotFoundException
@@ -350,6 +349,26 @@ public class ZooKeeperMain {
             processCmd(cl);
         }
         ServiceUtils.requestSystemExit(exitCode);
+    }
+
+    private static Object createTerminal() throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Class<?> terminalBuilderC = Class.forName("org.jline.terminal.TerminalBuilder");
+        Method terminalBuilderMethod = terminalBuilderC.getMethod("builder");
+        Object terminalBuilder = terminalBuilderMethod.invoke(null);
+        Method terminalBuildMethod = terminalBuilderC.getMethod("build");
+        return terminalBuildMethod.invoke(terminalBuilder);
+    }
+
+    private static Object createLineReader(Object terminal, Object completer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Class<?> readerBuilderC = Class.forName("org.jline.reader.LineReaderBuilder");
+        Method readerBuilderMethod = readerBuilderC.getMethod("builder");
+        Object readerBuilder = readerBuilderMethod.invoke(null);
+        Method setTerminalMethod = readerBuilderC.getMethod("terminal", Class.forName("org.jline.terminal.Terminal"));
+        setTerminalMethod.invoke(readerBuilder, terminal);
+        Method setCompleterMethod = readerBuilderC.getMethod("completer", Class.forName("org.jline.reader.Completer"));
+        setCompleterMethod.invoke(readerBuilder, completer);
+        Method readerBuildMethod = readerBuilderC.getMethod("build");
+        return readerBuildMethod.invoke(readerBuilder);
     }
 
     public void executeLine(String line) throws InterruptedException, IOException {
