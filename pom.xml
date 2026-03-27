@@ -1241,6 +1241,41 @@
     </plugins>
   </reporting>
 
+    <repositories>
+        <repository>
+            <id>talend-public</id>
+            <name>Talend Open Source Public group</name>
+            <url>https://artifacts-oss.talend.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>thirdparty-releases</id>
+            <name>Third party releases</name>
+            <url>https://artifacts-zl.talend.com/nexus/content/repositories/thirdparty-releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>maven-central</id>
+            <url>https://repo.maven.apache.org/maven2/</url>
+            <name>Maven Central Repo</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>talend-public</id>
@@ -1254,15 +1289,26 @@
             </releases>
         </pluginRepository>
         <pluginRepository>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
             <id>thirdparty-releases</id>
             <name>Third party releases</name>
             <url>https://artifacts-zl.talend.com/nexus/content/repositories/thirdparty-releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven-central</id>
+            <url>https://repo.maven.apache.org/maven2/</url>
+            <name>Maven Central Repo</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </pluginRepository>
     </pluginRepositories>
 
